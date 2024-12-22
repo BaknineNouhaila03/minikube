@@ -1,19 +1,8 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: backend-config
-  namespace: exam
-data:
-  DB_HOST: "database"
-  DB_PORT: "5432"
-  DB_NAME: "projet"
-
----
+# backend-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
-  namespace: exam
 spec:
   replicas: 2
   selector:
@@ -24,61 +13,36 @@ spec:
       labels:
         app: backend
     spec:
-      initContainers:
-        - name: wait-for-postgres
-          image: busybox
-          command:
-            - /bin/sh
-            - -c
-            - "until nc -z -v -w30 database 5432; do echo 'Waiting for PostgreSQL'; sleep 5; done"
       containers:
-        - name: backend
-          image: nouhabk23/backend-image-final:1.0.0
-          env:
-            - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://database:5432/projet"
-            - name: SPRING_DATASOURCE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: app-secrets
-                  key: DB_USER
-            - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: app-secrets
-                  key: DB_PASSWORD
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "300m"
-            limits:
-              memory: "1Gi"
-              cpu: "600m"
-          ports:
-            - containerPort: 8080
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 5
-
+      - name: backend
+        image: nouhabk23/backend-image-final:1.0.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://database:5432/projet
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: POSTGRES_USER
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: update
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: backend
-  namespace: exam
 spec:
   selector:
     app: backend
   ports:
   - port: 8080
     targetPort: 8080
+    nodePort: 30081
   type: NodePort
