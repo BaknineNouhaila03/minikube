@@ -6,6 +6,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
 spec:
+  ingressClassName: nginx
   rules:
     - host: minikube.baknine.frontend.com
       http:
@@ -16,6 +17,6 @@ spec:
               service:
                 name: frontend
                 port:
-                  number: 3001
+                  number: 3002
 
 

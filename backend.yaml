@@ -25,25 +25,25 @@ spec:
               memory: "500Mi"
         ports:
         - containerPort: 8080
-        readinessProbe:
-            httpGet:
-              path: /ready
-              port: 80
-            initialDelaySeconds: 5
-            periodSeconds: 10
-        livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 80
-            initialDelaySeconds: 10
-            periodSeconds: 10
-        startupProbe:
-            httpGet:
-              path: /startup
-              port: 80
-            initialDelaySeconds: 20
-            periodSeconds: 10
-            failureThreshold: 30
+        # readinessProbe:
+        #     httpGet:
+        #       path: /ready
+        #       port: 80
+        #     initialDelaySeconds: 5
+        #     periodSeconds: 10
+        # livenessProbe:
+        #     httpGet:
+        #       path: /healthz
+        #       port: 80
+        #     initialDelaySeconds: 10
+        #     periodSeconds: 10
+        # startupProbe:
+        #     httpGet:
+        #       path: /startup
+        #       port: 80
+        #     initialDelaySeconds: 20
+        #     periodSeconds: 10
+        #     failureThreshold: 30
         env:
         - name: SPRING_DATASOURCE_URL
           value: jdbc:postgresql://database:5432/projet
