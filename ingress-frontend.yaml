@@ -17,6 +17,6 @@ spec:
               service:
                 name: frontend
                 port:
-                  number: 3002
+                  number: 80
 
 
